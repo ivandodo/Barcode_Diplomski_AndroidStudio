@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Barcode Test</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_main">Barcode Scanner</string>
+    <string name="title_activity_paket_pregled">Sadrza paketa</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_paket_pregled_list">PaketPregledList</string>
+    <string name="title_activity_paket_view">PaketView</string>
+    <string name="Scan">Scan</string>
+    <string name="Search">Search</string>
+    <string name="NoData">No data</string>
+    <string name="Packages">Packages</string>
+    <string name="ScanInterrupted">Scan interrupted!</string>
+    <string name="NoResultFound">No result found!</string>
+    <string name="NoInputData">Input data empty!</string>    
+	<string name="ScanOrEnterBarcode">Scan or enter barcode</string>
+	<string name="Empty">Empty</string>
+
+</resources>
