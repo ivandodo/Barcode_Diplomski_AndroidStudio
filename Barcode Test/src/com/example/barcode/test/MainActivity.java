@@ -40,6 +40,7 @@ public class MainActivity extends ActionBarActivity {
 //	EmptyLayout emptyLayout;
 
     ZinfoPaket paket;
+    ArrayList<ZinfoPaket> lista;
     
     //WSDL operation name
     private static final String METHOD_NAME = "getDefaultPaket";
@@ -61,8 +62,9 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
         
         inputBarcode = (EditText)findViewById(R.id.editBarcode);
-        
-        populateList(new ArrayList<ZinfoPaket>(),this);
+
+        if (lista == null) lista = new ArrayList<ZinfoPaket>();
+        populateList(lista,this);
         
         inputBarcode.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -206,13 +208,14 @@ public class MainActivity extends ActionBarActivity {
 
         protected void onPostExecute(ZinfoPaket result) {
           
-            ArrayList<ZinfoPaket> lista = new ArrayList<ZinfoPaket>();
+            ArrayList<ZinfoPaket> list = new ArrayList<ZinfoPaket>();
 
             paket = result;
             
-            lista.add(result);
+            list.add(result);
+            lista= list;
             
-            populateList(lista, context);
+            populateList(list, context);
         }
       }
 
@@ -257,16 +260,18 @@ public class MainActivity extends ActionBarActivity {
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         // Read values from the "savedInstanceState"-object
-        paket = savedInstanceState.getParcelable(PAKET);
-        ArrayList<ZinfoPaket> list = new ArrayList<ZinfoPaket>();
-        list.add(paket);
+//        paket = savedInstanceState.getParcelable(PAKET);
+//        ArrayList<ZinfoPaket> list = new ArrayList<ZinfoPaket>();
+//        list.add(paket);
+        ArrayList<ZinfoPaket> list = savedInstanceState.getParcelableArrayList(PAKET);
+        lista = list;
         populateList(list, this);
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         // Save the values you need
-        outState.putParcelable(PAKET, paket);
+        outState.putParcelableArrayList(PAKET, lista);
         super.onSaveInstanceState(outState);
     }
 }
