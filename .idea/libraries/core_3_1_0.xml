@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="core-3.1.0">
+    <CLASSES>
+      <root url="jar://$APPLICATION_HOME_DIR$/sdk/extras/android/m2repository/com/google/zxing/core/3.1.0/core-3.1.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

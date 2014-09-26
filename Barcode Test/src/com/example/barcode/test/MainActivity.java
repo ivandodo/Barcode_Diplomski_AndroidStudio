@@ -31,18 +31,17 @@ import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 
 public class MainActivity extends ActionBarActivity {
-	
-	private static final int ACTIVITY_SCAN = 0;
-	
-	EditText inputBarcode;
-	TextView paketListView;
-//	ImageButton button;
-	
-	ListView listView1;
+
+    private static final int ACTIVITY_SCAN = 0;
+    public static final String PAKET = "PAKET";
+
+    EditText inputBarcode;
+    ListView listView1;
 //	EmptyLayout emptyLayout;
-	
+
+    ZinfoPaket paket;
     
-    //DSDL operation name
+    //WSDL operation name
     private static final String METHOD_NAME = "getDefaultPaket";
     //target namespace
     private static final String NAMESPACE = "http://webservice.paketi/";
@@ -115,7 +114,7 @@ public class MainActivity extends ActionBarActivity {
     };
     
     private void openScanActivity(){
-        Intent intent = new Intent("com.google.zxing.client.android.SCAN");
+        Intent intent = new Intent(this, ScanActivity.class);
         intent.putExtra("SCAN_MODE", "EAN_8");
         intent.putExtra("SCAN_MODE", "EAN_16");
         intent.putExtra("SCAN_MODE", "UPC_A");
@@ -178,7 +177,7 @@ public class MainActivity extends ActionBarActivity {
 	}
     
     private class WebserviceCall extends AsyncTask<String, Void, ZinfoPaket> {
-    	
+
     	Context context;
     	
     	public WebserviceCall(Context ctx){
@@ -208,13 +207,10 @@ public class MainActivity extends ActionBarActivity {
         protected void onPostExecute(ZinfoPaket result) {
           
             ArrayList<ZinfoPaket> lista = new ArrayList<ZinfoPaket>();
+
+            paket = result;
             
             lista.add(result);
-            
-//            lista.add(new ZinfoPaket("markica", 150L, "10", "19"));
-//            lista.add(new ZinfoPaket("markica", 151L, "20", "29"));
-//            lista.add(new ZinfoPaket("markica", 152L, "30", "39"));
-//            lista.add(new ZinfoPaket("markica", 153L, "40", "49"));
             
             populateList(lista, context);
         }
@@ -255,5 +251,22 @@ public class MainActivity extends ActionBarActivity {
 			Log.e("ERROR","Ne moze da parsira paket!");
 			return null;
         }
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        // Read values from the "savedInstanceState"-object
+        paket = savedInstanceState.getParcelable(PAKET);
+        ArrayList<ZinfoPaket> list = new ArrayList<ZinfoPaket>();
+        list.add(paket);
+        populateList(list, this);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        // Save the values you need
+        outState.putParcelable(PAKET, paket);
+        super.onSaveInstanceState(outState);
     }
 }

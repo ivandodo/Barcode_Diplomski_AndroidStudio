@@ -15,8 +15,27 @@
     <string name="Packages">Packages</string>
     <string name="ScanInterrupted">Scan interrupted!</string>
     <string name="NoResultFound">No result found!</string>
-    <string name="NoInputData">Input data empty!</string>    
-	<string name="ScanOrEnterBarcode">Scan or enter barcode</string>
-	<string name="Empty">Empty</string>
+    <string name="NoInputData">Input data empty!</string>
+    <string name="ScanOrEnterBarcode">Scan or enter barcode</string>
+    <string name="Empty">Empty</string>
+    <string name="title_activity_simple_scan">SimpleScanActivity</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_scan">ScanActivity</string><string name="scanner_activity">ZXing Scanner - Full Activity</string>
+    <string name="scanner_fragment_activity">ZXing Scanner - Full Fragment Activity</string>
+    <string name="simple_scanner_activity">ZXing Scanner - Simple Activity</string>
+    <string name="simple_scanner_fragment_activity">ZXing Scanner - Simple Fragment Activity</string>
+    <string name="simple_activity_sample">Simple Activity Sample</string>
+    <string name="simple_fragment_sample">Simple Fragment Sample</string>
+    <string name="activity_sample">Full Activity Sample</string>
+    <string name="fragment_sample">Full Fragment Sample</string>
+    <string name="toggle_flash">Flash</string>
+    <string name="flash_on">Flash [ON]</string>
+    <string name="flash_off">Flash [OFF]</string>
+    <string name="auto_focus_on">Auto Focus [ON]</string>
+    <string name="auto_focus_off">Auto Focus [OFF]</string>
+    <string name="formats">Formats</string>
+    <string name="choose_formats">Choose Formats</string>
+    <string name="ok_button">OK</string>
+    <string name="cancel_button">Cancel</string>
 
 </resources>
