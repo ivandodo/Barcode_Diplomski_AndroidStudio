@@ -13,7 +13,12 @@ public class ZinfoPaket implements Serializable, Parcelable{
     private String numOd;
     private String numDo;
 
-    public ZinfoPaket(){}
+    public ZinfoPaket(){
+        this.proizvod = "Nema Podataka";
+        this.brojPaketa = null;
+        this.numOd = "";
+        this.numDo = "";
+    }
 
     public ZinfoPaket(String proizvod, Long brojPaketa, String numOd,
                       String numDo) {

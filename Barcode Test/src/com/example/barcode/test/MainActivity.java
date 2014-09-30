@@ -43,12 +43,12 @@ public class MainActivity extends ActionBarActivity {
     ArrayList<ZinfoPaket> lista;
     
     //WSDL operation name
-    private static final String METHOD_NAME = "getDefaultPaket";
+    private static final String METHOD_NAME = "getPaket";
     //target namespace
     private static final String NAMESPACE = "http://webservice.paketi/";
     //address location u WDSL
 //    private static final String URL = "http://172.16.2.130:8991/ZINFO8-WS/PaketiSoapHttpPort";
-    private static final String URL = "http://pegasus.local.rcub.bg.ac.rs:7777/ZINFO8-WS/PaketiSoapHttpPort";
+    private static final String URL = "http://pegasus.local.rcub.bg.ac.rs:8888/ZINFO8-WS/PaketiSoapHttpPort";
     
     //action
     private static final String SOAP_ACTION = NAMESPACE + "/" + METHOD_NAME;
@@ -130,7 +130,7 @@ public class MainActivity extends ActionBarActivity {
     	WebserviceCall call = new WebserviceCall(this);
     	try{
     		Long nfeCheck = Long.parseLong(barcode);
-    		call.execute(barcode);
+    		call.execute(nfeCheck);
     	}
     	
     	//TODO: ovaj catch treba da se izmesti drugde da bi radilo upozorenje
@@ -178,7 +178,7 @@ public class MainActivity extends ActionBarActivity {
         listView1.setAdapter(adapter);
 	}
     
-    private class WebserviceCall extends AsyncTask<String, Void, ZinfoPaket> {
+    private class WebserviceCall extends AsyncTask<Long, Void, ZinfoPaket> {
 
     	Context context;
     	
@@ -186,7 +186,7 @@ public class MainActivity extends ActionBarActivity {
     		this.context = ctx;
     	}
     	
-        protected ZinfoPaket doInBackground(String... barKod) {
+        protected ZinfoPaket doInBackground(Long... barKod) {
           
         	ZinfoPaket response = null;
         	
@@ -201,7 +201,8 @@ public class MainActivity extends ActionBarActivity {
           }
           
           catch(Throwable t){
-        	response = new ZinfoPaket("Probne markice sa tufnama", Long.parseLong(barKod[0]), "1001", "2000");
+//        	response = new ZinfoPaket("Probne markice sa tufnama", barKod[0], "1001", "2000");
+              response = new ZinfoPaket();
           }
           return response;
         }
@@ -210,6 +211,7 @@ public class MainActivity extends ActionBarActivity {
           
             ArrayList<ZinfoPaket> list = new ArrayList<ZinfoPaket>();
 
+            if (result == null) result = new ZinfoPaket();
             paket = result;
             
             list.add(result);
@@ -219,10 +221,10 @@ public class MainActivity extends ActionBarActivity {
         }
       }
 
-	private PaketKSOAP2Parser dohvatiRezultat(String barKod){
+	private PaketKSOAP2Parser dohvatiRezultat(Long barKod){
     	SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
         PropertyInfo pi = new PropertyInfo();
-        pi.setName("l");
+        pi.setName("id");
         try{
         	pi.setValue(barKod);
         }

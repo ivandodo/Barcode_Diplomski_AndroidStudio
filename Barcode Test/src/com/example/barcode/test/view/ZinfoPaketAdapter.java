@@ -54,7 +54,7 @@ public class ZinfoPaketAdapter extends ArrayAdapter<ZinfoPaket> {
             holder.proizvod.setText(paket.getProizvod());
             holder.numOd.setText(paket.getNumOd());
             holder.numDo.setText(paket.getNumDo());
-            holder.kolicina.setText(paket.getBrojPaketa().toString());
+            holder.kolicina.setText(paket.getBrojPaketa()!= null? paket.getBrojPaketa().toString() : "");
         }
         
         return row;
