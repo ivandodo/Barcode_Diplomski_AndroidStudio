@@ -1,2 +1,1 @@
-include ':Barcode Test'
-//include ':zxing-2.1:android'
+include ':Barcode Scanner'
