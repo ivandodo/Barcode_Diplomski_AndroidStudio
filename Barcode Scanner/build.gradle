@@ -16,6 +16,41 @@ dependencies {
     compile 'de.keyboardsurfer.android.widget:crouton-library:1.8.2@aar'
 }
 
+android.applicationVariants.all { variant ->
+
+    task("generate${variant.name.capitalize()}Javadoc", type: Javadoc) {
+        title = "Documentation for Android $android.defaultConfig.versionName b$android.defaultConfig.versionCode"
+        destinationDir = new File("${project.getProjectDir()}/Dokumentacija/", variant.baseName)
+        source = variant.javaCompile.source
+
+        ext.androidJar = "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
+        classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar)
+
+        description "Generates Javadoc for $variant.name."
+
+        options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PRIVATE
+        options.links("http://docs.oracle.com/javase/7/docs/api/");
+        options.links("http://developer.android.com/reference/reference/");
+        exclude '**/BuildConfig.java'
+        exclude '**/R.java'
+    }
+}
+
+android.applicationVariants.findAll { variant -> variant.name == 'Release' } each { variant ->
+    task("generate${variant.name}Javadoc", type: Javadoc) {
+        description "Generates Javadoc for $variant.name."
+        source = variant.javaCompile.source
+        ext.androidJar = "${android.plugin.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
+        classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar)
+    }
+
+    task("bundle${variant.name}Javadoc", type: Zip) {
+        description "Bundles Javadoc into zip for $variant.name."
+        classifier = "javadoc"
+        from tasks["generate${variant.name}Javadoc"]
+    }
+}
+
 android {
     compileSdkVersion 19
     buildToolsVersion '19.1.0'
