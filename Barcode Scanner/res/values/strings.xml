@@ -12,7 +12,7 @@
     <string name="Scan">Scan</string>
     <string name="Search">Search</string>
     <string name="NoData">No data</string>
-    <string name="Packages">Packages</string>
+    <string name="Contents">Contents</string>
     <string name="ScanInterrupted">Scan interrupted!</string>
     <string name="NoResultFound">No result found!</string>
     <string name="NoInputData">Input data empty!</string>
@@ -37,5 +37,8 @@
     <string name="choose_formats">Choose Formats</string>
     <string name="ok_button">OK</string>
     <string name="cancel_button">Cancel</string>
+    <string name="Name">Name</string>
+    <string name="PkgNo">Pkg. No.</string>
+    <string name="Numeration">Numeration</string>
 
 </resources>
