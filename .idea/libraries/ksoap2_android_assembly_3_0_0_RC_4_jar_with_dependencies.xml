@@ -1,7 +1,7 @@
 <component name="libraryTable">
   <library name="ksoap2-android-assembly-3.0.0-RC.4-jar-with-dependencies">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/Barcode Scanner/libs/ksoap2-android-assembly-3.0.0-RC.4-jar-with-dependencies.jar!/" />
+      <root url="jar://$PROJECT_DIR$/ZINFO Barcode Scanner/libs/ksoap2-android-assembly-3.0.0-RC.4-jar-with-dependencies.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
