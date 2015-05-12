@@ -17,6 +17,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -27,24 +28,35 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.ksoap2.SoapEnvelope;
+import org.ksoap2.serialization.PropertyInfo;
+import org.ksoap2.serialization.SoapObject;
+import org.ksoap2.serialization.SoapSerializationEnvelope;
+import org.ksoap2.transport.HttpTransportSE;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import rcub.zinfo.barcodescanner.R;
+import rcub.zinfo.barcodescanner.ZinfoLoginKorisnik;
+import rcub.zinfo.barcodescanner.webservice.entity.ZinfoLoginKorisnikKSOAP2Parser;
 
 /**
  * A login screen that offers login via email/password.
  */
 public class LoginActivity extends BarcodeScannerBaseActivity implements LoaderCallbacks<Cursor> {
 
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
+    //WSDL operation name
+    private static final String METHOD_NAME = "getByUsername";
+    //target namespace
+    private static final String NAMESPACE = "http://webservice.paketi/";
+    //address location u WDSL
+    private static final String URL = "http://172.16.2.131:8991/ZINFO8-WS/ZinfoLoginKorisnikPortTypeSoapHttpPort";
+//    private static final String URL = "http://pegasus.soneco.co.rs:8888/ZINFO8-WS/PaketiSoapHttpPort";
+
+    //action
+    private static final String SOAP_ACTION = NAMESPACE + "/" + METHOD_NAME;
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -248,11 +260,51 @@ public class LoginActivity extends BarcodeScannerBaseActivity implements LoaderC
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+    public class UserLoginTask extends AsyncTask<Void, Void, ZinfoLoginKorisnik> {
 
         private String mUsername;
         private String mPassword;
         private Context mContext;
+
+        /**
+         * Pomocni metod koji se iz poziva zasebne niti i koji na osnovu bar-koda dohvata odgovor web-servisa.
+         * @param username procitani ili uneti bar-kod
+         * @return odgovor servisa za zadati @barKod
+         */
+        private ZinfoLoginKorisnikKSOAP2Parser dohvatiRezultat(String username) {
+            SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
+            PropertyInfo pi = new PropertyInfo();
+            pi.setName("id");
+            try {
+                pi.setValue(username);
+            } catch (Throwable t) {
+                return null;
+            }
+            pi.setType(String.class);
+            request.addProperty(pi);
+
+            SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
+
+            envelope.setOutputSoapObject(request);
+
+            HttpTransportSE ht = new HttpTransportSE(URL);
+            SoapObject response = null;
+            try {
+                ht.call(SOAP_ACTION, envelope);
+
+                try {
+                    response = (SoapObject) envelope.getResponse();
+                } catch (ClassCastException e) {
+                    response = (SoapObject) envelope.bodyIn;
+                }
+
+                return new ZinfoLoginKorisnikKSOAP2Parser(response);
+
+            } catch (Exception e) {
+                Log.e("ERROR", "Ne moze da parsira paket!");
+                return null;
+            }
+        }
 
         UserLoginTask(String email, String password, Context context) {
             mUsername = email;
@@ -261,34 +313,19 @@ public class LoginActivity extends BarcodeScannerBaseActivity implements LoaderC
         }
 
         @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
+        protected ZinfoLoginKorisnik doInBackground(Void... params) {
 
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
+            ZinfoLoginKorisnikKSOAP2Parser korisnik = dohvatiRezultat(mUsername);
 
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mUsername)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
-            }
-
-            // TODO: register the new account here.
-            return true;
+            return korisnik.getZinfoLoginKorisnik();
         }
 
         @Override
-        protected void onPostExecute(final Boolean success) {
+        protected void onPostExecute(final ZinfoLoginKorisnik korisnik) {
             mAuthTask = null;
             showProgress(false);
 
-            if (success) {
+            if (korisnik.getUsername()!= null) {
                 //Redirect to next activity
                 BarcodeScannerBaseActivity.setUsername(mUsername);
                 BarcodeScannerBaseActivity.setPassword(mPassword);
@@ -306,7 +343,7 @@ public class LoginActivity extends BarcodeScannerBaseActivity implements LoaderC
             // MY_PREFS_NAME - a static String variable like:
             //public static final String MY_PREFS_NAME = "MyPrefsFile";
             SharedPreferences.Editor editor = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE).edit();
-            editor.putString("username", success? mUsername : null);
+            editor.putString("username", (korisnik.getUsername()!= null)? korisnik.getUsername() : null);
 
             editor.apply();
         }
