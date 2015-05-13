@@ -1,0 +1,74 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_gravity="center_vertical|center_horizontal">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp"
+            android:layout_gravity="center_horizontal" >
+
+            <EditText
+                android:id="@+id/editBarcode"
+                android:layout_width="0dip"
+                android:layout_weight="1"
+                android:layout_height="50dp"
+                android:layout_marginTop="10dp"
+                android:hint="@string/ScanOrEnterBarcode"
+                android:imeOptions="actionSearch"
+                android:inputType="number" >
+
+                <requestFocus />
+            </EditText>
+
+            <!-- ImageButton
+                android:id="@+id/button1"
+                android:layout_width="50dip"
+                android:layout_height="50dp"
+                android:layout_marginTop="10dp"
+                android:contentDescription="@string/Search"
+                android:src="@android:drawable/ic_search_category_default" /-->
+
+        </LinearLayout>
+        <ListView
+            android:id="@+id/paketListView"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"
+            android:gravity="center_horizontal">
+        </ListView>
+
+
+        <TextView
+            android:id="@+id/emptyListView"
+            android:text="@string/Empty"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:gravity="center"
+            />
+
+    </LinearLayout>
+
+    <!--ImageButton
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:src="@android:drawable/ic_menu_camera"
+        android:background="@drawable/circle"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
+        android:id="@+id/fab"
+        android:elevation="1dp"
+        /><!- -
+            android:background="@drawable/ripple"
+            android:stateListAnimator="@anim/fab_anim"-->
+</RelativeLayout>
