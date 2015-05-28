@@ -12,10 +12,11 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.gc.materialdesign.views.ButtonFloat;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.serialization.PropertyInfo;
@@ -58,7 +59,8 @@ public class MainActivity extends BarcodeScannerBaseActivity {
      * Promenljiva kojom se obezbedjuje logout
      */
     boolean doubleBackToExitPressedOnce;
-//    ImageButton fabCam;
+
+    com.gc.materialdesign.views.ButtonFloat fabCameraButton;
 
     //WSDL operation name
     private static final String METHOD_NAME = "getPaket";
@@ -89,6 +91,14 @@ public class MainActivity extends BarcodeScannerBaseActivity {
         if (lista == null) lista = new ArrayList<ZinfoPaket>();
         populateList(lista, this);
 
+        fabCameraButton = (ButtonFloat) findViewById(R.id.buttonFloat);
+        fabCameraButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openScanActivity();
+            }
+        });
+
         inputBarcode.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
@@ -116,23 +126,24 @@ public class MainActivity extends BarcodeScannerBaseActivity {
         paketList.setEmptyView(findViewById(R.id.emptyListView));
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(android.view.MenuItem item) {
-        // Handle presses on the action bar items
-        switch (item.getItemId()) {
-            case R.id.capture_barcode:
-                openScanActivity();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    };
+    //Menu
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        getMenuInflater().inflate(R.menu.activity_main, menu);
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(android.view.MenuItem item) {
+//        // Handle presses on the action bar items
+//        switch (item.getItemId()) {
+//            case R.id.capture_barcode:
+//                openScanActivity();
+//                return true;
+//            default:
+//                return super.onOptionsItemSelected(item);
+//        }
+//    };
 
     /**
      * Poziv @Activity u kojoj se vrsi skeniranje bar-koda

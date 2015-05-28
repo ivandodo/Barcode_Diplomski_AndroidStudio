@@ -272,38 +272,39 @@ public class LoginActivity extends BarcodeScannerBaseActivity implements LoaderC
          * @return odgovor servisa za zadati @barKod
          */
         private ZinfoLoginKorisnikKSOAP2Parser dohvatiRezultat(String username) {
-            SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
-            PropertyInfo pi = new PropertyInfo();
-            pi.setName("id");
-            try {
-                pi.setValue(username);
-            } catch (Throwable t) {
-                return null;
-            }
-            pi.setType(String.class);
-            request.addProperty(pi);
-
-            SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
-
-            envelope.setOutputSoapObject(request);
-
-            HttpTransportSE ht = new HttpTransportSE(URL);
-            SoapObject response = null;
-            try {
-                ht.call(SOAP_ACTION, envelope);
-
-                try {
-                    response = (SoapObject) envelope.getResponse();
-                } catch (ClassCastException e) {
-                    response = (SoapObject) envelope.bodyIn;
-                }
-
-                return new ZinfoLoginKorisnikKSOAP2Parser(response);
-
-            } catch (Exception e) {
-                Log.e("ERROR", "Ne moze da parsira paket!");
-                return null;
-            }
+            return null;
+//            SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
+//            PropertyInfo pi = new PropertyInfo();
+//            pi.setName("id");
+//            try {
+//                pi.setValue(username);
+//            } catch (Throwable t) {
+//                return null;
+//            }
+//            pi.setType(String.class);
+//            request.addProperty(pi);
+//
+//            SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
+//
+//            envelope.setOutputSoapObject(request);
+//
+//            HttpTransportSE ht = new HttpTransportSE(URL);
+//            SoapObject response = null;
+//            try {
+//                ht.call(SOAP_ACTION, envelope);
+//
+//                try {
+//                    response = (SoapObject) envelope.getResponse();
+//                } catch (ClassCastException e) {
+//                    response = (SoapObject) envelope.bodyIn;
+//                }
+//
+//                return new ZinfoLoginKorisnikKSOAP2Parser(response);
+//
+//            } catch (Exception e) {
+//                Log.e("ERROR", "Ne moze da parsira paket!");
+//                return null;
+//            }
         }
 
         UserLoginTask(String email, String password, Context context) {
@@ -314,16 +315,23 @@ public class LoginActivity extends BarcodeScannerBaseActivity implements LoaderC
 
         @Override
         protected ZinfoLoginKorisnik doInBackground(Void... params) {
+            return null;
 
-            ZinfoLoginKorisnikKSOAP2Parser korisnik = dohvatiRezultat(mUsername);
-
-            return korisnik.getZinfoLoginKorisnik();
+//            ZinfoLoginKorisnikKSOAP2Parser korisnik = dohvatiRezultat(mUsername);
+//
+//            return korisnik.getZinfoLoginKorisnik();
         }
 
         @Override
-        protected void onPostExecute(final ZinfoLoginKorisnik korisnik) {
+        protected void onPostExecute(/*final*/ ZinfoLoginKorisnik korisnik) {
             mAuthTask = null;
             showProgress(false);
+
+            //TODO: boilerplate
+            korisnik = new ZinfoLoginKorisnik();
+            korisnik.setPassword("pass");
+            korisnik.setId(1L);
+            korisnik.setUsername("user");
 
             if (korisnik.getUsername()!= null) {
                 //Redirect to next activity
