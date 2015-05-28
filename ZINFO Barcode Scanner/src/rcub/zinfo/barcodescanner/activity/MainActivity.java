@@ -1,8 +1,12 @@
 package rcub.zinfo.barcodescanner.activity;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -11,6 +15,7 @@ import android.view.Menu;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -61,6 +66,10 @@ public class MainActivity extends BarcodeScannerBaseActivity {
     boolean doubleBackToExitPressedOnce;
 
     com.gc.materialdesign.views.ButtonFloat fabCameraButton;
+
+
+    View mMainFormView;
+    View mProgressView;
 
     //WSDL operation name
     private static final String METHOD_NAME = "getPaket";
@@ -124,6 +133,16 @@ public class MainActivity extends BarcodeScannerBaseActivity {
         });
 
         paketList.setEmptyView(findViewById(R.id.emptyListView));
+
+        paketList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                openScanActivity();
+            }
+        });
+
+        mMainFormView = findViewById(R.id.paketListView);
+        mProgressView = findViewById(R.id.search_progress);
     }
 
     //Menu
@@ -258,6 +277,44 @@ public class MainActivity extends BarcodeScannerBaseActivity {
             lista = list;
 
             populateList(list, context);
+
+            showProgress(false);
+        }
+    }
+
+    /**
+     * Shows the progress UI and hides the login form.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    public void showProgress(final boolean show) {
+        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+        // for very easy animations. If available, use these APIs to fade-in
+        // the progress spinner.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+            mMainFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            mMainFormView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mMainFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+                }
+            });
+
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            mProgressView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            });
+        } else {
+            // The ViewPropertyAnimator APIs are not available, so simply show
+            // and hide the relevant UI components.
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            mMainFormView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
 
@@ -267,6 +324,7 @@ public class MainActivity extends BarcodeScannerBaseActivity {
      * @return odgovor servisa za zadati @barKod
      */
     private PaketKSOAP2Parser dohvatiRezultat(Long barKod) {
+        showProgress(true);
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
         PropertyInfo pi = new PropertyInfo();
         pi.setName("id");

@@ -21,7 +21,7 @@ public class ZinfoPaket implements Serializable, Parcelable {
      */
     public ZinfoPaket() {
         this.proizvod = "Nema Podataka";
-        this.brojPaketa = null;
+        this.brojPaketa = -1L;
         this.numOd = "";
         this.numDo = "";
     }
