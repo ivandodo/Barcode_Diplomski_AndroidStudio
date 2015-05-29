@@ -74,9 +74,9 @@ public class MainActivity extends BarcodeScannerBaseActivity {
     //WSDL operation name
     private static final String METHOD_NAME = "getPaket";
     //target namespace
-    private static final String NAMESPACE = "http://webservice.paketi/";
+    private static final String NAMESPACE = "http://webservices.paketi/";
     //address location u WDSL
-    private static final String URL = "http://172.16.2.131:8993/ZINFO8-WS/PaketiSoapHttpPort";
+    private static final String URL = "http://172.16.2.131:8993/WebServices/PaketiServiceSoapHttpPort";
 //    private static final String URL = "http://pegasus.soneco.co.rs:8888/ZINFO8-WS/PaketiSoapHttpPort";
 
     //action
@@ -182,7 +182,8 @@ public class MainActivity extends BarcodeScannerBaseActivity {
      * @param barcode bar-kod koji se dekodira
      */
     private void decodeBarcode(String barcode) {
-        //Za dohvacen rezultat poziva web servis                      
+        //Za dohvacen rezultat poziva web servis
+        showProgress(true);
         WebserviceCall call = new WebserviceCall(this);
         try {
             Long nfeCheck = Long.parseLong(barcode);
@@ -191,6 +192,7 @@ public class MainActivity extends BarcodeScannerBaseActivity {
         catch (Throwable nfe) {
 
         }
+
     }
 
     /**
@@ -269,6 +271,7 @@ public class MainActivity extends BarcodeScannerBaseActivity {
 
         protected void onPostExecute(ZinfoPaket result) {
 
+            showProgress(false);
             ArrayList<ZinfoPaket> list = new ArrayList<ZinfoPaket>();
 
             if (result == null) result = new ZinfoPaket();
@@ -277,8 +280,6 @@ public class MainActivity extends BarcodeScannerBaseActivity {
             lista = list;
 
             populateList(list, context);
-
-            showProgress(false);
         }
     }
 
@@ -324,8 +325,10 @@ public class MainActivity extends BarcodeScannerBaseActivity {
      * @return odgovor servisa za zadati @barKod
      */
     private PaketKSOAP2Parser dohvatiRezultat(Long barKod) {
-        showProgress(true);
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
+
+        Log.e("INFO", "Usao u dohvatanje");
+
         PropertyInfo pi = new PropertyInfo();
         pi.setName("id");
         try {
@@ -349,6 +352,7 @@ public class MainActivity extends BarcodeScannerBaseActivity {
                 response = (SoapObject) envelope.getResponse();
             } catch (ClassCastException e) {
                 response = (SoapObject) envelope.bodyIn;
+                Log.e("INFO", "Los odgovor!");
             }
 
             return new PaketKSOAP2Parser(response);
