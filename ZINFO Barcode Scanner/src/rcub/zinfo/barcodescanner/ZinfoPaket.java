@@ -15,6 +15,8 @@ public class ZinfoPaket implements Serializable, Parcelable {
     private Long brojPaketa;
     private String numOd;
     private String numDo;
+    private Long idPaket;
+    private Long idProizvod;
 
     /**
      * Prazan konstruktor koji se poziva kada se ne dobiju podaci.
@@ -24,14 +26,18 @@ public class ZinfoPaket implements Serializable, Parcelable {
         this.brojPaketa = -1L;
         this.numOd = "";
         this.numDo = "";
+        this.idPaket = null;
+        this.idProizvod = null;
     }
 
     public ZinfoPaket(String proizvod, Long brojPaketa, String numOd,
-                      String numDo) {
+                      String numDo, Long idPaket, Long idProizvod) {
         this.proizvod = proizvod;
         this.brojPaketa = brojPaketa;
         this.numOd = numOd;
         this.numDo = numDo;
+        this.idPaket = idPaket;
+        this.idProizvod = idProizvod;
     }
 
     public String getProizvod() {
@@ -66,6 +72,22 @@ public class ZinfoPaket implements Serializable, Parcelable {
         this.numDo = numDo;
     }
 
+    public Long getIdPaket() {
+        return idPaket;
+    }
+
+    public void setIdPaket(Long idPaket) {
+        this.idPaket = idPaket;
+    }
+
+    public Long getIdProizvod() {
+        return idProizvod;
+    }
+
+    public void setIdProizvod(Long idProizvod) {
+        this.idProizvod = idProizvod;
+    }
+
     public static long getSerialversionuid() {
         return serialVersionUID;
     }
@@ -81,6 +103,8 @@ public class ZinfoPaket implements Serializable, Parcelable {
         out.writeLong(brojPaketa);
         out.writeString(numOd);
         out.writeString(numDo);
+        out.writeLong(idPaket);
+        out.writeLong(idProizvod);
     }
 
     public static final Parcelable.Creator<ZinfoPaket> CREATOR
@@ -99,5 +123,7 @@ public class ZinfoPaket implements Serializable, Parcelable {
         brojPaketa = in.readLong();
         numOd = in.readString();
         numDo = in.readString();
+        idPaket = in.readLong();
+        idProizvod = in.readLong();
     }
 }

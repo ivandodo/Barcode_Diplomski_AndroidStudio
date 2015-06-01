@@ -14,17 +14,24 @@ public class PaketKSOAP2Parser extends KSOAP2Parser {
     static final int PROIZVOD = 1;
     static final int NUMERACIJA_OD = 2;
     static final int NUMERACIJA_DO = 3;
-    static final int ELEMENT_COUNT = 4;
+    static final int ID_PAKET = 4;
+    static final int ID_PROIZVOD = 5;
+    static final int ELEMENT_COUNT = 6;
 
     public static String PROP_BROJ_PAKETA = "brojPaketa";
     public static String PROP_PROIZVOD = "proizvod";
     public static String PROP_NUM_OD = "numOd";
     public static String PROP_NUM_DO = "numDo";
+    public static String PROP_ID_PAKET = "idPaket";
+    public static String PROP_ID_PROIZVOD = "idProizvod";
 
     public long broj;
     public String proizvod;
     public String numeracija_od;
     public String numeracija_do;
+    public Long idPaket;
+    public Long idProizvod;
+
     private ZinfoPaket paket = null;
 
     public PaketKSOAP2Parser(SoapObject value) throws BarcodeReaderException {
@@ -50,6 +57,12 @@ public class PaketKSOAP2Parser extends KSOAP2Parser {
         if (PROP_NUM_DO.equals(propertyName)) {
             return NUMERACIJA_DO;
         }
+        if (PROP_ID_PAKET.equals(propertyName)) {
+            return ID_PAKET;
+        }
+        if (PROP_ID_PROIZVOD.equals(propertyName)) {
+            return ID_PROIZVOD;
+        }
         return -1;
     }
 
@@ -67,6 +80,12 @@ public class PaketKSOAP2Parser extends KSOAP2Parser {
         if (PROP_NUM_DO.equals(propertyName)) {
             return BarcodeConstants.CLASS_SOAP_PRIMITIVE;
         }
+        if (PROP_ID_PAKET.equals(propertyName)) {
+            return BarcodeConstants.CLASS_SOAP_PRIMITIVE;
+        }
+        if (PROP_ID_PROIZVOD.equals(propertyName)) {
+            return BarcodeConstants.CLASS_SOAP_PRIMITIVE;
+        }
         return null;
     }
 
@@ -79,6 +98,8 @@ public class PaketKSOAP2Parser extends KSOAP2Parser {
         else if (index == PROIZVOD) proizvod = val;
         else if (index == NUMERACIJA_OD) numeracija_od = val;
         else if (index == NUMERACIJA_DO) numeracija_do = val;
+        else if (index == ID_PAKET) idPaket = Long.valueOf(val);
+        else if (index == ID_PROIZVOD) idProizvod = Long.valueOf(val);
     }
 
     /**
@@ -87,7 +108,7 @@ public class PaketKSOAP2Parser extends KSOAP2Parser {
      */
     public ZinfoPaket getPaket() {
         if (paket == null) {
-            paket = new ZinfoPaket(proizvod, broj, numeracija_od, numeracija_do);
+            paket = new ZinfoPaket(proizvod, broj, numeracija_od, numeracija_do, idPaket, idProizvod);
         }
 
         return paket;

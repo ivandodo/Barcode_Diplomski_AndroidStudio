@@ -73,14 +73,18 @@ public class MainActivity extends BarcodeScannerBaseActivity {
 
     //WSDL operation name
     private static final String METHOD_NAME = "getPaket";
+    private static final String METHOD_NAME2 = "getNumByPaket";
+
     //target namespace
     private static final String NAMESPACE = "http://webservices.paketi/";
     //address location u WDSL
     private static final String URL = "http://172.16.2.131:8993/WebServices/PaketiServiceSoapHttpPort";
+    private static final String URL2 = "http://172.16.2.131:8993/WebServices/NumeracijaServiceSoapHttpPort";
 //    private static final String URL = "http://pegasus.soneco.co.rs:8888/ZINFO8-WS/PaketiSoapHttpPort";
 
     //action
     private static final String SOAP_ACTION = NAMESPACE + "/" + METHOD_NAME;
+    private static final String SOAP_ACTION2 = NAMESPACE + "/" + METHOD_NAME2;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -137,12 +141,65 @@ public class MainActivity extends BarcodeScannerBaseActivity {
         paketList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                openScanActivity();
+//                openScanActivity();
+
+                new Thread(new myRunnable(parent, position)).start();
             }
         });
 
         mMainFormView = findViewById(R.id.paketListView);
         mProgressView = findViewById(R.id.search_progress);
+    }
+
+    public class myRunnable implements Runnable{
+        public AdapterView adaprer;
+        public int position;
+
+        myRunnable(AdapterView a, int p){
+            super();
+            this.adaprer = a;
+            this.position = p;
+        }
+
+        @Override
+        public void run() {
+            callList((ZinfoPaket) this.adaprer.getItemAtPosition(this.position));
+        }
+    }
+
+    private void callList(ZinfoPaket paket){
+        SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME2);
+
+        Log.e("INFO", "Usao u dohvatanje");
+
+        PropertyInfo pi = new PropertyInfo();
+        pi.setName("idPaket");
+        pi.setValue(paket.getIdPaket());
+        pi.setType(Long.class);
+        request.addProperty(pi);
+
+        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
+
+        envelope.setOutputSoapObject(request);
+
+        HttpTransportSE ht = new HttpTransportSE(URL2);
+        SoapObject response = null;
+        try {
+            ht.call(SOAP_ACTION2, envelope);
+
+            try {
+                response = (SoapObject) envelope.getResponse();
+            } catch (ClassCastException e) {
+                response = (SoapObject) envelope.bodyIn;
+                Log.e("INFO", "Los odgovor!");
+            }
+
+            //return new PaketKSOAP2Parser(response);
+
+        } catch (Exception e) {
+            Log.e("ERROR", "Ne moze da parsira paket!");
+            //return null;
+        }
     }
 
     //Menu
@@ -262,7 +319,9 @@ public class MainActivity extends BarcodeScannerBaseActivity {
                         new ZinfoPaket(paket.proizvod,
                                 paket.broj,
                                 paket.numeracija_od,
-                                paket.numeracija_do);
+                                paket.numeracija_do,
+                                paket.idPaket,
+                                paket.idProizvod);
             } catch (Throwable t) {
                 response = new ZinfoPaket();
             }
