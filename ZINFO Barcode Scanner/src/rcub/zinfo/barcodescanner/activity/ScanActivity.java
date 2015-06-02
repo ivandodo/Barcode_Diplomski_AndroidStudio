@@ -1,4 +1,4 @@
-package rcub.zinfo.barcodescanner;
+package rcub.zinfo.barcodescanner.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
+import rcub.zinfo.barcodescanner.FormatSelectorDialogFragment;
+import rcub.zinfo.barcodescanner.MessageDialogFragment;
+import rcub.zinfo.barcodescanner.R;
 
 /**
  * Pomocni activity u kome se vrsi skeniranje i prepoznavanje bar-koda.

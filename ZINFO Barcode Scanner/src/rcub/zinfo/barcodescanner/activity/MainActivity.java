@@ -9,9 +9,9 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Menu;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -24,19 +24,22 @@ import android.widget.Toast;
 import com.gc.materialdesign.views.ButtonFloat;
 
 import org.ksoap2.SoapEnvelope;
+import org.ksoap2.serialization.KvmSerializable;
 import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 import rcub.zinfo.barcodescanner.R;
-import rcub.zinfo.barcodescanner.ScanActivity;
+import rcub.zinfo.barcodescanner.ZinfoNeispravnaNumeracija;
 import rcub.zinfo.barcodescanner.ZinfoPaket;
 import rcub.zinfo.barcodescanner.view.ZinfoPaketAdapter;
+import rcub.zinfo.barcodescanner.webservice.entity.NumeracijaKSOAP2Parser;
 import rcub.zinfo.barcodescanner.webservice.entity.PaketKSOAP2Parser;
 
 /**
@@ -140,10 +143,9 @@ public class MainActivity extends BarcodeScannerBaseActivity {
 
         paketList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                openScanActivity();
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id){
 
-                new Thread(new myRunnable(parent, position)).start();
+                openDetailActivity((ZinfoPaket) parent.getItemAtPosition(position));
             }
         });
 
@@ -183,7 +185,8 @@ public class MainActivity extends BarcodeScannerBaseActivity {
         envelope.setOutputSoapObject(request);
 
         HttpTransportSE ht = new HttpTransportSE(URL2);
-        SoapObject response = null;
+        KvmSerializable response = null;
+        List<ZinfoNeispravnaNumeracija> lista = new ArrayList<ZinfoNeispravnaNumeracija>();
         try {
             ht.call(SOAP_ACTION2, envelope);
 
@@ -194,6 +197,11 @@ public class MainActivity extends BarcodeScannerBaseActivity {
                 Log.e("INFO", "Los odgovor!");
             }
 
+            for(int i=0;i<response.getPropertyCount();i++){
+                lista.add((new NumeracijaKSOAP2Parser((SoapObject)response.getProperty(i))).getNumeracija());
+            }
+
+            List<Integer> i = new ArrayList<Integer>();
             //return new PaketKSOAP2Parser(response);
 
         } catch (Exception e) {
@@ -231,6 +239,17 @@ public class MainActivity extends BarcodeScannerBaseActivity {
         intent.putExtra("SCAN_MODE", "UPC_A");
         intent.putExtra("SCAN_MODE", "UPC_E");
         startActivityForResult(intent, BarcodeScannerBaseActivity.ACTIVITY_SCAN);
+    }
+
+    private void openDetailActivity(ZinfoPaket paket) {
+        try {
+            Intent intent = new Intent(this.getBaseContext(), DetailActivity.class);
+//            Bundle extras = intent.getExtras();
+            intent.putExtra(DetailActivity.KEY_PAKET, (Parcelable) paket);
+            startActivity(intent);
+        }catch (Throwable t){
+            Log.e("ERROR", "Puko prelaz u detalje");
+        }
     }
 
     /**
@@ -283,8 +302,9 @@ public class MainActivity extends BarcodeScannerBaseActivity {
     //popunjavanje liste
     private void populateList(ArrayList<ZinfoPaket> lista, Context ctx) {
 
-        ZinfoPaketAdapter adapter = new ZinfoPaketAdapter(ctx,
-                R.layout.paket_pregled_row, lista.toArray(new ZinfoPaket[lista.size()]));
+        ZinfoPaketAdapter adapter =
+                new ZinfoPaketAdapter(
+                        ctx, R.layout.paket_pregled_row, lista.toArray(new ZinfoPaket[lista.size()]));
 
         paketList = (ListView) findViewById(R.id.paketListView);
 

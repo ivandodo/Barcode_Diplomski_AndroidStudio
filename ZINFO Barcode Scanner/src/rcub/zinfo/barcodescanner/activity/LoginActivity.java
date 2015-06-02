@@ -72,6 +72,7 @@ public class LoginActivity extends BarcodeScannerBaseActivity implements LoaderC
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        setTitle(R.string.title_activity_login);
 
         // Set up the login form.
         mUsernameView = (AutoCompleteTextView) findViewById(R.id.username);

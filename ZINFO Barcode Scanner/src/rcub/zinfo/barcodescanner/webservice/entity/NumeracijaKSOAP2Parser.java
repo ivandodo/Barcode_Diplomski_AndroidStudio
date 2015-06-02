@@ -17,7 +17,7 @@ public class NumeracijaKSOAP2Parser extends KSOAP2Parser {
     static final int ELEMENT_COUNT = 4;
 
     public static String PROP_ID = "id";
-    public static String PROP_NUMERACIJA = "nemeracija";
+    public static String PROP_NUMERACIJA = "numeracija";
     public static String PROP_STATUS = "status";
     public static String PROP_ID_PAKET = "idPaket";
 
@@ -87,7 +87,7 @@ public class NumeracijaKSOAP2Parser extends KSOAP2Parser {
      * Metod kojim se vraca objekat dobijen iz poruke
      * @return Ako poruka nije konvertovana u trenutku poziva, vrsi se konverzija u trenutku poziva
      */
-    public ZinfoNeispravnaNumeracija getPaket() {
+    public ZinfoNeispravnaNumeracija getNumeracija() {
         if (mNumeracija == null) {
             mNumeracija = new ZinfoNeispravnaNumeracija(id, numeracija, status, idPaket);
         }

@@ -42,5 +42,7 @@
     <string name="PkgNo">Pkg. No.</string>
     <string name="Numeration">Numeration</string>
     <string name="pressBackTwiceToLogout">Please click BACK again to log out</string>
+    <string name="title_activity_detail">Details</string>
+    <string name="paket_za_pregled">PaketZaPregled</string>
 
 </resources>
