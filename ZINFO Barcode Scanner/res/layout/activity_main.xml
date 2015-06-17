@@ -15,7 +15,7 @@
             android:layout_marginTop="20dp"
             android:layout_gravity="center_horizontal" >
 
-            <EditText
+            <AutoCompleteTextView
                 android:id="@+id/editBarcode"
                 android:layout_width="0dip"
                 android:layout_weight="1"
@@ -23,10 +23,11 @@
                 android:layout_marginTop="10dp"
                 android:hint="@string/ScanOrEnterBarcode"
                 android:imeOptions="actionSearch"
-                android:inputType="number" >
+                android:inputType="number"
+                android:completionThreshold="1"><!--android:inputType="number"-->
 
                 <requestFocus />
-            </EditText>
+            </AutoCompleteTextView>
 
             <!-- ImageButton
                 android:id="@+id/button1"

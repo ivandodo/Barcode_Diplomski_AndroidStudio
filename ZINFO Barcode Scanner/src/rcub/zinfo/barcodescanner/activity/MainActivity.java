@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,12 +17,14 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.EditText;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gc.materialdesign.views.ButtonFloat;
+import com.google.gson.Gson;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.serialization.KvmSerializable;
@@ -50,10 +53,11 @@ public class MainActivity extends BarcodeScannerBaseActivity {
      * Identifikator sacuvane liste podataka u slucaju promene konfiguracije.
      */
     public static final String PAKET = "PAKET";
+    private static final int HISTORY_SIZE = 10;
     /**
      * Polje za unost teksta
      */
-    EditText inputBarcode;
+    AutoCompleteTextView inputBarcode;
     /**
      * lista za prikaz paketa
      */
@@ -67,6 +71,8 @@ public class MainActivity extends BarcodeScannerBaseActivity {
      * Promenljiva kojom se obezbedjuje logout
      */
     boolean doubleBackToExitPressedOnce;
+
+    private ArrayAdapter<String> adapter;
 
     com.gc.materialdesign.views.ButtonFloat fabCameraButton;
 
@@ -89,13 +95,29 @@ public class MainActivity extends BarcodeScannerBaseActivity {
     private static final String SOAP_ACTION = NAMESPACE + "/" + METHOD_NAME;
     private static final String SOAP_ACTION2 = NAMESPACE + "/" + METHOD_NAME2;
 
+    private ArrayList<String> BARCODES;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         doubleBackToExitPressedOnce = false;
 
-        inputBarcode = (EditText) findViewById(R.id.editBarcode);
+        Gson gson = new Gson();
+
+        SharedPreferences prefs = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
+        String restoredText = prefs.getString("searchHistory", null);
+        if (restoredText != null) {
+            BARCODES = gson.fromJson(restoredText, ArrayList.class);
+        }
+        else{
+            BARCODES = new ArrayList<String>();
+        }
+
+        adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_dropdown_item_1line, BARCODES);
+
+        inputBarcode = (AutoCompleteTextView) findViewById(R.id.editBarcode);
 //        fabCam = (ImageButton) findViewById(R.id.fab);
 //        fabCam.setOnClickListener(new ImageButton.OnClickListener() {
 //            @Override
@@ -103,6 +125,15 @@ public class MainActivity extends BarcodeScannerBaseActivity {
 //                openScanActivity();
 //            }
 //        });
+
+        inputBarcode.setAdapter(adapter);
+
+        inputBarcode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                    inputBarcode.showDropDown();
+            }
+        });
 
         if (lista == null) lista = new ArrayList<ZinfoPaket>();
         populateList(lista, this);
@@ -359,7 +390,29 @@ public class MainActivity extends BarcodeScannerBaseActivity {
             lista = list;
 
             populateList(list, context);
+            addHistory(result.getIdPaket().toString());
         }
+    }
+
+    /*
+        Sluzi za cuvanje istorije pretraga
+     */
+    private void addHistory(String s){
+        boolean exists = BARCODES.remove(s);
+        BARCODES.add(0, s);
+        if(BARCODES.size() > HISTORY_SIZE){
+            BARCODES.remove(HISTORY_SIZE);
+        }
+        adapter.clear();
+        adapter.addAll(BARCODES);
+        adapter.notifyDataSetChanged();
+
+        Gson gson = new Gson();
+        String str = gson.toJson(BARCODES);
+        SharedPreferences prefs = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("searchHistory", str);
+        editor.commit();
     }
 
     /**
