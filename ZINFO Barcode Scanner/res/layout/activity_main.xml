@@ -38,14 +38,14 @@
                 android:src="@android:drawable/ic_search_category_default" /-->
 
         </LinearLayout>
-        <ListView
+        <android.support.v7.widget.RecyclerView
             android:id="@+id/paketListView"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_gravity="center"
             android:layout_marginTop="10dp"
             android:gravity="center_horizontal">
-        </ListView>
+        </android.support.v7.widget.RecyclerView>
 
 
 

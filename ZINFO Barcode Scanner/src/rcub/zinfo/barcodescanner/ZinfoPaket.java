@@ -40,6 +40,31 @@ public class ZinfoPaket implements Serializable, Parcelable {
         this.idProizvod = idProizvod;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ZinfoPaket entity = (ZinfoPaket) o;
+
+        if (proizvod != null ? !proizvod.equals(entity.proizvod) : entity.proizvod != null)
+            return false;
+        if (numOd != null ? !numOd.equals(entity.numOd) : entity.numOd != null)
+            return false;
+        if (numDo != null ? !numDo.equals(entity.numDo) : entity.numDo != null)
+            return false;
+        if (brojPaketa != null ? !brojPaketa.equals(entity.brojPaketa) : entity.brojPaketa != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return (proizvod+numOd+numDo+brojPaketa) !=
+                null ? (proizvod+numOd+numDo+brojPaketa).hashCode() : 0;
+    }
+
     public String getProizvod() {
         return proizvod;
     }

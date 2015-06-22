@@ -1,14 +1,10 @@
 package rcub.zinfo.barcodescanner.activity;
 
-import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.view.ViewCompat;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
-import android.view.animation.LayoutAnimationController;
-import android.view.animation.TranslateAnimation;
 import android.widget.TextView;
 
 import rcub.zinfo.barcodescanner.R;
@@ -37,31 +33,23 @@ public class DetailActivity extends BarcodeScannerBaseActivity {
 
         ZinfoPaket paket = getIntent().getExtras().getParcelable(KEY_PAKET);
 
+
+        ViewCompat.setTransitionName(view, getString(R.string.detail_transition));
+
         proizvod.setText(paket.getProizvod());
         numOd.setText(paket.getNumOd());
         numDo.setText(paket.getNumDo());
         paketBroj.setText(paket.getBrojPaketa().toString());
-
-        setLayoutAnim_slidedownfromtop((ViewGroup)view, this);
     }
 
-    public static void setLayoutAnim_slidedownfromtop(ViewGroup panel, Context ctx) {
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+        int id = menuItem.getItemId();
+        if (id == android.R.id.home) {
+            ActivityCompat.finishAfterTransition(this);
+            return true;
+        }
+        return super.onOptionsItemSelected(menuItem);
+    }
 
-        AnimationSet set = new AnimationSet(true);
-
-        Animation animation = new AlphaAnimation(0.0f, 1.0f);
-        animation.setDuration(100);
-        set.addAnimation(animation);
-
-        animation = new TranslateAnimation(
-                Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.0f,
-                Animation.RELATIVE_TO_SELF, -1.0f, Animation.RELATIVE_TO_SELF, 0.0f
-        );
-        animation.setDuration(500);
-        set.addAnimation(animation);
-
-        LayoutAnimationController controller =
-                new LayoutAnimationController(set, 0.25f);
-        panel.setLayoutAnimation(controller);
-
-    }}
+}

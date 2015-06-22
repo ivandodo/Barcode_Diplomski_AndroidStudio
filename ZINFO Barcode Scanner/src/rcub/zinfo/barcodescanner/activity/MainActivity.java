@@ -11,6 +11,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -19,7 +24,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,7 +45,7 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 import rcub.zinfo.barcodescanner.R;
 import rcub.zinfo.barcodescanner.ZinfoNeispravnaNumeracija;
 import rcub.zinfo.barcodescanner.ZinfoPaket;
-import rcub.zinfo.barcodescanner.view.ZinfoPaketAdapter;
+import rcub.zinfo.barcodescanner.view.ZinfoPaketRecyclerAdapter;
 import rcub.zinfo.barcodescanner.webservice.entity.NumeracijaKSOAP2Parser;
 import rcub.zinfo.barcodescanner.webservice.entity.PaketKSOAP2Parser;
 
@@ -61,7 +65,7 @@ public class MainActivity extends BarcodeScannerBaseActivity {
     /**
      * lista za prikaz paketa
      */
-    ListView paketList;
+    RecyclerView paketList;
 
     /**
      * Promenljiva u kojoj se cuva lista paketa dobijenih skeniranjem.
@@ -118,20 +122,13 @@ public class MainActivity extends BarcodeScannerBaseActivity {
                 android.R.layout.simple_dropdown_item_1line, BARCODES);
 
         inputBarcode = (AutoCompleteTextView) findViewById(R.id.editBarcode);
-//        fabCam = (ImageButton) findViewById(R.id.fab);
-//        fabCam.setOnClickListener(new ImageButton.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                openScanActivity();
-//            }
-//        });
 
         inputBarcode.setAdapter(adapter);
 
         inputBarcode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                    inputBarcode.showDropDown();
+                inputBarcode.showDropDown();
             }
         });
 
@@ -170,15 +167,7 @@ public class MainActivity extends BarcodeScannerBaseActivity {
             }
         });
 
-        paketList.setEmptyView(findViewById(R.id.emptyListView));
-
-        paketList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id){
-
-                openDetailActivity((ZinfoPaket) parent.getItemAtPosition(position));
-            }
-        });
+//        paketList.setEmptyView(findViewById(R.id.emptyListView));
 
         mMainFormView = findViewById(R.id.paketListView);
         mProgressView = findViewById(R.id.search_progress);
@@ -274,10 +263,15 @@ public class MainActivity extends BarcodeScannerBaseActivity {
 
     private void openDetailActivity(ZinfoPaket paket) {
         try {
-            Intent intent = new Intent(this.getBaseContext(), DetailActivity.class);
-//            Bundle extras = intent.getExtras();
-            intent.putExtra(DetailActivity.KEY_PAKET, (Parcelable) paket);
-            startActivity(intent);
+
+            Intent detailIntent = new Intent(this, DetailActivity.class);
+            detailIntent.putExtra(DetailActivity.KEY_PAKET, (Parcelable) paket);
+            ZinfoPaketRecyclerAdapter.ViewHolder viewHolder = (ZinfoPaketRecyclerAdapter.ViewHolder) paketList.findViewHolderForAdapterPosition(0);
+            String titleName = getString(R.string.detail_transition);
+            Pair<View, String> titlePair = Pair.create((View)(viewHolder.getmPaketView()).getParent().getParent(), titleName);
+            ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, titlePair);
+            ActivityCompat.startActivity(this, detailIntent, options.toBundle());
+
         }catch (Throwable t){
             Log.e("ERROR", "Puko prelaz u detalje");
         }
@@ -333,18 +327,17 @@ public class MainActivity extends BarcodeScannerBaseActivity {
     //popunjavanje liste
     private void populateList(ArrayList<ZinfoPaket> lista, Context ctx) {
 
-        ZinfoPaketAdapter adapter =
-                new ZinfoPaketAdapter(
-                        ctx, R.layout.paket_pregled_row, lista.toArray(new ZinfoPaket[lista.size()]));
-
-        paketList = (ListView) findViewById(R.id.paketListView);
-
-        if (paketList.getHeaderViewsCount() == 0) {
-            View header = (View) getLayoutInflater().inflate(R.layout.paket_pregled_header, null);
-            paketList.addHeaderView(header);
-        }
-
-        paketList.setAdapter(adapter);
+        paketList = (RecyclerView) findViewById(R.id.paketListView);
+        paketList.setLayoutManager(new LinearLayoutManager(this));
+        ZinfoPaketRecyclerAdapter adapter = new ZinfoPaketRecyclerAdapter(this);
+        adapter.setOnItemClickListener(new ZinfoPaketRecyclerAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(ZinfoPaket entity) {
+                openDetailActivity(entity);
+            }
+        });
+        adapter.setData(lista);
+        paketList.swapAdapter(adapter, false);
     }
 
     /**

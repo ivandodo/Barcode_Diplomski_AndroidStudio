@@ -44,5 +44,6 @@
     <string name="pressBackTwiceToLogout">Please click BACK again to log out</string>
     <string name="title_activity_detail">Details</string>
     <string name="paket_za_pregled">PaketZaPregled</string>
+    <string name="detail_transition">detailTrasition</string>
 
 </resources>
