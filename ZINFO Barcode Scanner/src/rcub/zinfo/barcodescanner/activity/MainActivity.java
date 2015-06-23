@@ -21,7 +21,6 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.TextView;
@@ -31,22 +30,18 @@ import com.gc.materialdesign.views.ButtonFloat;
 import com.google.gson.Gson;
 
 import org.ksoap2.SoapEnvelope;
-import org.ksoap2.serialization.KvmSerializable;
 import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 import rcub.zinfo.barcodescanner.R;
-import rcub.zinfo.barcodescanner.ZinfoNeispravnaNumeracija;
 import rcub.zinfo.barcodescanner.ZinfoPaket;
 import rcub.zinfo.barcodescanner.view.ZinfoPaketRecyclerAdapter;
-import rcub.zinfo.barcodescanner.webservice.entity.NumeracijaKSOAP2Parser;
 import rcub.zinfo.barcodescanner.webservice.entity.PaketKSOAP2Parser;
 
 /**
@@ -133,7 +128,7 @@ public class MainActivity extends BarcodeScannerBaseActivity {
         });
 
         if (lista == null) lista = new ArrayList<ZinfoPaket>();
-        populateList(lista, this);
+        populateList(lista);
 
         fabCameraButton = (ButtonFloat) findViewById(R.id.buttonFloat);
         fabCameraButton.setOnClickListener(new View.OnClickListener() {
@@ -154,12 +149,15 @@ public class MainActivity extends BarcodeScannerBaseActivity {
                                 (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
 
                         imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+                        //da bi se sklonio suggestion list
+                        v.clearFocus();
 
-                        populateList(new ArrayList<ZinfoPaket>(), MainActivity.this);
+                        populateList(new ArrayList<ZinfoPaket>());
+
                     } else {
                         Crouton.showText(MainActivity.this, R.string.NoInputData, Style.ALERT);
 
-                        populateList(new ArrayList<ZinfoPaket>(), MainActivity.this);
+                        populateList(new ArrayList<ZinfoPaket>());
                     }
                     return true;
                 }
@@ -167,67 +165,8 @@ public class MainActivity extends BarcodeScannerBaseActivity {
             }
         });
 
-//        paketList.setEmptyView(findViewById(R.id.emptyListView));
-
         mMainFormView = findViewById(R.id.paketListView);
         mProgressView = findViewById(R.id.search_progress);
-    }
-
-    public class myRunnable implements Runnable{
-        public AdapterView adaprer;
-        public int position;
-
-        myRunnable(AdapterView a, int p){
-            super();
-            this.adaprer = a;
-            this.position = p;
-        }
-
-        @Override
-        public void run() {
-            callList((ZinfoPaket) this.adaprer.getItemAtPosition(this.position));
-        }
-    }
-
-    private void callList(ZinfoPaket paket){
-        SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME2);
-
-        Log.e("INFO", "Usao u dohvatanje");
-
-        PropertyInfo pi = new PropertyInfo();
-        pi.setName("idPaket");
-        pi.setValue(paket.getIdPaket());
-        pi.setType(Long.class);
-        request.addProperty(pi);
-
-        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
-
-        envelope.setOutputSoapObject(request);
-
-        HttpTransportSE ht = new HttpTransportSE(URL2);
-        KvmSerializable response = null;
-        List<ZinfoNeispravnaNumeracija> lista = new ArrayList<ZinfoNeispravnaNumeracija>();
-        try {
-            ht.call(SOAP_ACTION2, envelope);
-
-            try {
-                response = (SoapObject) envelope.getResponse();
-            } catch (ClassCastException e) {
-                response = (SoapObject) envelope.bodyIn;
-                Log.e("INFO", "Los odgovor!");
-            }
-
-            for(int i=0;i<response.getPropertyCount();i++){
-                lista.add((new NumeracijaKSOAP2Parser((SoapObject)response.getProperty(i))).getNumeracija());
-            }
-
-            List<Integer> i = new ArrayList<Integer>();
-            //return new PaketKSOAP2Parser(response);
-
-        } catch (Exception e) {
-            Log.e("ERROR", "Ne moze da parsira paket!");
-            //return null;
-        }
     }
 
     //Menu
@@ -268,7 +207,7 @@ public class MainActivity extends BarcodeScannerBaseActivity {
             detailIntent.putExtra(DetailActivity.KEY_PAKET, (Parcelable) paket);
             ZinfoPaketRecyclerAdapter.ViewHolder viewHolder = (ZinfoPaketRecyclerAdapter.ViewHolder) paketList.findViewHolderForAdapterPosition(0);
             String titleName = getString(R.string.detail_transition);
-            Pair<View, String> titlePair = Pair.create((View)(viewHolder.getmPaketView()).getParent().getParent(), titleName);
+            Pair<View, String> titlePair = Pair.create(viewHolder.itemView, titleName);
             ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, titlePair);
             ActivityCompat.startActivity(this, detailIntent, options.toBundle());
 
@@ -325,7 +264,7 @@ public class MainActivity extends BarcodeScannerBaseActivity {
     }
 
     //popunjavanje liste
-    private void populateList(ArrayList<ZinfoPaket> lista, Context ctx) {
+    private void populateList(ArrayList<ZinfoPaket> lista) {
 
         paketList = (RecyclerView) findViewById(R.id.paketListView);
         paketList.setLayoutManager(new LinearLayoutManager(this));
@@ -382,7 +321,7 @@ public class MainActivity extends BarcodeScannerBaseActivity {
             list.add(result);
             lista = list;
 
-            populateList(list, context);
+            populateList(list);
             addHistory(result.getIdPaket().toString());
         }
     }
@@ -498,7 +437,7 @@ public class MainActivity extends BarcodeScannerBaseActivity {
         // Read values from the "savedInstanceState"-object
         ArrayList<ZinfoPaket> list = savedInstanceState.getParcelableArrayList(PAKET);
         lista = list;
-        populateList(list, this);
+        populateList(list);
     }
 
     /**

@@ -14,9 +14,6 @@ import android.widget.TextView;
 import rcub.zinfo.barcodescanner.R;
 import rcub.zinfo.barcodescanner.ZinfoPaket;
 
-/**
- * Created by per-erik on 15/11/14.
- */
 public class ZinfoPaketRecyclerAdapter extends AbstractListAdapter<ZinfoPaket, ZinfoPaketRecyclerAdapter.ViewHolder> {
 
     private final Context             mContext;
@@ -68,10 +65,7 @@ public class ZinfoPaketRecyclerAdapter extends AbstractListAdapter<ZinfoPaket, Z
                 }
             };
 
-            mProizvodView.setOnClickListener(listener);
-            mNumOdView.setOnClickListener(listener);
-            mNumDoView.setOnClickListener(listener);
-            mPaketView.setOnClickListener(listener);
+            v.setOnClickListener(listener);
         }
 
         public void bind(ZinfoPaket entity) {
@@ -86,22 +80,6 @@ public class ZinfoPaketRecyclerAdapter extends AbstractListAdapter<ZinfoPaket, Z
         public String toString() {
             return "ViewHolder{" + mProizvodView.getText() + " " + mPaketView.getText() + " " +
                     mNumOdView.getText() + " - " + mNumDoView.getText() + "}";
-        }
-
-        public TextView getmProizvodView() {
-            return mProizvodView;
-        }
-
-        public TextView getmNumOdView() {
-            return mNumOdView;
-        }
-
-        public TextView getmNumDoView() {
-            return mNumDoView;
-        }
-
-        public TextView getmPaketView() {
-            return mPaketView;
         }
     }
 

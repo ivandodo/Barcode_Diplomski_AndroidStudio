@@ -45,5 +45,9 @@
     <string name="title_activity_detail">Details</string>
     <string name="paket_za_pregled">PaketZaPregled</string>
     <string name="detail_transition">detailTrasition</string>
-
+    <string name="NeispravnaNumeracija">Input missing numeration</string>
+    <string name="OK">Ok</string>
+    <string name="CANCEL">Cancel</string>
+    <string name="NumeracijaVanOpsega">Out of range</string>
+    <string name="Delete">Delete</string>
 </resources>
