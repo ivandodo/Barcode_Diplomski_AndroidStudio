@@ -22,6 +22,7 @@ import org.ksoap2.SoapEnvelope;
 import org.ksoap2.serialization.KvmSerializable;
 import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
+import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
@@ -48,7 +49,11 @@ public class DetailActivity extends BarcodeScannerBaseActivity {
     ButtonFloat fabAddButton;
     RecyclerView numeracijeList;
 
-    private static final String METHOD_NAME = "getNumByPaket";
+    ZinfoPaket paket;
+
+    private static final String METHOD_GET_LIST = "getNumByPaket";
+    private static final String METHOD_DELETE = "brisiNumeraciju";
+    private static final String METHOD_SAVE = "sacuvajNumeraciju";
 
     //target namespace
     private static final String NAMESPACE = "http://webservices.paketi/";
@@ -56,7 +61,9 @@ public class DetailActivity extends BarcodeScannerBaseActivity {
     private static final String URL = "http://172.16.2.131:8993/WebServices/NumeracijaServiceSoapHttpPort";
 
     //action
-    private static final String SOAP_ACTION2 = NAMESPACE + "/" + METHOD_NAME;
+    private static final String SOAP_ACTION_GET_LIST = NAMESPACE + "/" + METHOD_GET_LIST;
+    private static final String SOAP_ACTION_DELETE = NAMESPACE + "/" + METHOD_DELETE;
+    private static final String SOAP_ACTION_SAVE = NAMESPACE + "/" + METHOD_SAVE;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +77,7 @@ public class DetailActivity extends BarcodeScannerBaseActivity {
         numDo = (TextView) findViewById(R.id.detail_paket_num_do);
         paketBroj = (TextView) findViewById(R.id.detail_paket_broj);
 
-        ZinfoPaket paket = getIntent().getExtras().getParcelable(KEY_PAKET);
+        paket = getIntent().getExtras().getParcelable(KEY_PAKET);
 
 
         ViewCompat.setTransitionName(view, getString(R.string.detail_transition));
@@ -88,7 +95,18 @@ public class DetailActivity extends BarcodeScannerBaseActivity {
             }
         });
 
-        WebserviceCall call = new WebserviceCall(this);
+        numeracijeList = (RecyclerView) findViewById(R.id.numeracijeListView);
+        ZinfoNumeracijeRecyclerAdapter adapter = new ZinfoNumeracijeRecyclerAdapter(this);
+        adapter.setOnItemClickListener(new ZinfoNumeracijeRecyclerAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(ZinfoNeispravnaNumeracija entity) {
+                deleteNumeracija(entity);
+            }
+        });
+        numeracijeList.setAdapter(adapter);
+        numeracijeList.setLayoutManager(new LinearLayoutManager(this));
+
+        WebserviceLoadListCall call = new WebserviceLoadListCall(this);
         call.execute(paket);
     }
 
@@ -129,11 +147,11 @@ public class DetailActivity extends BarcodeScannerBaseActivity {
 
     }
 
-    private class WebserviceCall extends AsyncTask<ZinfoPaket, Void, List<ZinfoNeispravnaNumeracija>> {
+    private class WebserviceLoadListCall extends AsyncTask<ZinfoPaket, Void, List<ZinfoNeispravnaNumeracija>> {
 
         Context context;
 
-        public WebserviceCall(Context ctx) {
+        public WebserviceLoadListCall(Context ctx) {
             this.context = ctx;
         }
 
@@ -148,7 +166,7 @@ public class DetailActivity extends BarcodeScannerBaseActivity {
     }
 
     private List<ZinfoNeispravnaNumeracija> getNeispravneNumeracije(ZinfoPaket paket){
-        SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
+        SoapObject request = new SoapObject(NAMESPACE, METHOD_GET_LIST);
 
         Log.e("INFO", "Usao u dohvatanje");
 
@@ -166,7 +184,7 @@ public class DetailActivity extends BarcodeScannerBaseActivity {
         KvmSerializable response = null;
         List<ZinfoNeispravnaNumeracija> lista = new ArrayList<ZinfoNeispravnaNumeracija>();
         try {
-            ht.call(SOAP_ACTION2, envelope);
+            ht.call(SOAP_ACTION_GET_LIST, envelope);
 
             try {
                 response = (SoapObject) envelope.getResponse();
@@ -187,22 +205,84 @@ public class DetailActivity extends BarcodeScannerBaseActivity {
         }
     }
 
-    public void populateList(List<ZinfoNeispravnaNumeracija> result){
-        numeracijeList = (RecyclerView) findViewById(R.id.numeracijeListView);
-        numeracijeList.setLayoutManager(new LinearLayoutManager(this));
-        ZinfoNumeracijeRecyclerAdapter adapter = new ZinfoNumeracijeRecyclerAdapter(this);
-        adapter.setOnItemClickListener(new ZinfoNumeracijeRecyclerAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(ZinfoNeispravnaNumeracija entity) {
-                deleteNumeracija(entity);
+    private class WebserviceDeleteNumCall extends AsyncTask<ZinfoNeispravnaNumeracija, Void, Long> {
+
+        Context context;
+        Long succes = 0L;
+
+        public WebserviceDeleteNumCall(Context ctx) {
+            this.context = ctx;
+        }
+
+        protected Long doInBackground(ZinfoNeispravnaNumeracija... num) {
+            succes = deletZinfoNeispravnaNumeracija(num[0]);
+            try{
+                List<ZinfoNeispravnaNumeracija> res = getNeispravneNumeracije(paket);
+
+                if(res!=null){
+                    populateList(res);
+                }
             }
-        });
-        adapter.setData(result);
-        numeracijeList.swapAdapter(adapter, false);
+            finally{
+                return succes != null ? succes : 0L;
+            }
+        }
+
+        protected void onPostExecute(Long result) {
+//            showProgress(false);
+            if (result < 1L) {
+                Crouton.showText(DetailActivity.this, "Neuspelo brisanje", Style.ALERT);
+            }
+            numeracijeList.getAdapter().notifyDataSetChanged();
+        }
+    }
+
+    private Long deletZinfoNeispravnaNumeracija(ZinfoNeispravnaNumeracija num) {
+        Long ret = 0L;
+
+        SoapObject request = new SoapObject(NAMESPACE, METHOD_DELETE);
+
+        Log.e("INFO", "Usao u brisanje");
+
+        PropertyInfo pi = new PropertyInfo();
+        pi.setName("numId");
+        pi.setValue(num.getId());
+        pi.setType(Long.class);
+        request.addProperty(pi);
+
+        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
+
+        envelope.setOutputSoapObject(request);
+
+        HttpTransportSE ht = new HttpTransportSE(URL);
+        SoapObject response = null;
+        try {
+            ht.call(SOAP_ACTION_DELETE, envelope);
+
+            try {
+                response = (SoapObject) envelope.getResponse();
+            } catch (ClassCastException e) {
+                response = (SoapObject) envelope.bodyIn;
+                Log.e("INFO", "Los odgovor!");
+            }
+
+            return Long.parseLong(((SoapPrimitive) response.getProperty(0)).toString());
+
+        } catch (Exception e) {
+            Log.e("ERROR", "Ne moze da parsira paket!");
+            return null;
+        }
+    }
+
+
+    public void populateList(List<ZinfoNeispravnaNumeracija> result){
+        ((ZinfoNumeracijeRecyclerAdapter)numeracijeList.getAdapter()).setData(result);
+        numeracijeList.getAdapter().notifyDataSetChanged();
     }
 
     public void deleteNumeracija(ZinfoNeispravnaNumeracija num) {
-        Crouton.showText(DetailActivity.this, "RADI", Style.ALERT);
+        WebserviceDeleteNumCall call = new WebserviceDeleteNumCall(this);
+        call.execute(num);
     }
 
     @Override

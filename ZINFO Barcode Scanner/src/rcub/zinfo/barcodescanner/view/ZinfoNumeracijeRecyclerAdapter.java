@@ -5,7 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import rcub.zinfo.barcodescanner.R;
@@ -43,14 +43,14 @@ public class ZinfoNumeracijeRecyclerAdapter extends AbstractListAdapter<ZinfoNei
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView mNumView;
-        private final Button mDeleteButton;
+        private final ImageButton mDeleteButton;
         private ZinfoNeispravnaNumeracija mEntity;
 
         public ViewHolder(View v) {
             super(v);
 
             mNumView = (TextView) v.findViewById(R.id.numeracije_num);
-            mDeleteButton = (Button) v.findViewById(R.id.numeracije_delete);
+            mDeleteButton = (ImageButton) v.findViewById(R.id.numeracije_delete);
 
             View.OnClickListener listener = new View.OnClickListener() {
                 @Override
