@@ -70,6 +70,7 @@ public class DetailActivity extends BarcodeScannerBaseActivity {
     private static final String SOAP_ACTION_GET_LIST = NAMESPACE + "/" + METHOD_GET_LIST;
     private static final String SOAP_ACTION_DELETE = NAMESPACE + "/" + METHOD_DELETE;
     private static final String SOAP_ACTION_SAVE = NAMESPACE + "/" + METHOD_SAVE;
+    private List<ZinfoNeispravnaNumeracija> mNumeracijelist;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,10 +132,21 @@ public class DetailActivity extends BarcodeScannerBaseActivity {
         alert.setPositiveButton(getString(R.string.OK), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 BigDecimal num = new BigDecimal(input.getText().toString());
-                if (num.compareTo(new BigDecimal(numDo.getText().toString())) > 0
+                boolean duplicate = false;
+                for (ZinfoNeispravnaNumeracija item: mNumeracijelist){
+                    if (item.getNumeracija().equals(input.getText().toString())){
+                        duplicate = true;
+                        break;
+                    }
+                }
+                if (duplicate){
+                    Crouton.showText(DetailActivity.this, getString(R.string.NumeracijaUneta), Style.ALERT);
+                }
+                else if (num.compareTo(new BigDecimal(numDo.getText().toString())) > 0
                         || num.compareTo(new BigDecimal(numOd.getText().toString())) < 0) {
                     Crouton.showText(DetailActivity.this, getString(R.string.NumeracijaVanOpsega), Style.ALERT);
-                } else {
+                }
+                else {
                     ZinfoNeispravnaNumeracija numeracija =
                             new ZinfoNeispravnaNumeracija(null,input.getText().toString(), null, paket.getIdPaket());
                     saveMissingNumeration(numeracija);
@@ -293,6 +305,7 @@ public class DetailActivity extends BarcodeScannerBaseActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                mNumeracijelist = result;
                 ((ZinfoNumeracijeRecyclerAdapter)numeracijeList.getAdapter()).setData(result);
                 numeracijeList.getAdapter().notifyDataSetChanged();
             }
