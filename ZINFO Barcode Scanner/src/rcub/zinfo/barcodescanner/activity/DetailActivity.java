@@ -1,8 +1,12 @@
 package rcub.zinfo.barcodescanner.activity;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.ViewCompat;
@@ -26,6 +30,7 @@ import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,6 +53,7 @@ public class DetailActivity extends BarcodeScannerBaseActivity {
 
     ButtonFloat fabAddButton;
     RecyclerView numeracijeList;
+    View mProgressView;
 
     ZinfoPaket paket;
 
@@ -94,12 +100,12 @@ public class DetailActivity extends BarcodeScannerBaseActivity {
                 showInputDialog();
             }
         });
-
+        mProgressView = findViewById(R.id.list_progress);
         numeracijeList = (RecyclerView) findViewById(R.id.numeracijeListView);
         ZinfoNumeracijeRecyclerAdapter adapter = new ZinfoNumeracijeRecyclerAdapter(this);
         adapter.setOnItemClickListener(new ZinfoNumeracijeRecyclerAdapter.OnItemClickListener() {
             @Override
-            public void onItemClick(ZinfoNeispravnaNumeracija entity) {
+            public void onItemClick(final ZinfoNeispravnaNumeracija entity) {
                 deleteNumeracija(entity);
             }
         });
@@ -119,16 +125,19 @@ public class DetailActivity extends BarcodeScannerBaseActivity {
         // Set an EditText view to get user input
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        input.setText(paket.getNumOd());
         alert.setView(input);
 
         alert.setPositiveButton(getString(R.string.OK), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                Long num = Long.parseLong(input.getText().toString());
-                if (num < Long.parseLong(numDo.getText().toString())
-                        || num < Long.parseLong(numOd.getText().toString())) {
+                BigDecimal num = new BigDecimal(input.getText().toString());
+                if (num.compareTo(new BigDecimal(numDo.getText().toString())) > 0
+                        || num.compareTo(new BigDecimal(numOd.getText().toString())) < 0) {
                     Crouton.showText(DetailActivity.this, getString(R.string.NumeracijaVanOpsega), Style.ALERT);
                 } else {
-                    saveMissingNumber(num);
+                    ZinfoNeispravnaNumeracija numeracija =
+                            new ZinfoNeispravnaNumeracija(null,input.getText().toString(), null, paket.getIdPaket());
+                    saveMissingNumeration(numeracija);
                 }
                 fabAddButton.setVisibility(View.VISIBLE);
             }
@@ -143,8 +152,15 @@ public class DetailActivity extends BarcodeScannerBaseActivity {
         alert.show();
     }
 
-    public void saveMissingNumber(Long value){
-
+    public void saveMissingNumeration(final ZinfoNeispravnaNumeracija num){
+        showProgress(true);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                WebserviceInsertNumCall call = new WebserviceInsertNumCall(DetailActivity.this);
+                call.execute(num);
+            }
+        });
     }
 
     private class WebserviceLoadListCall extends AsyncTask<ZinfoPaket, Void, List<ZinfoNeispravnaNumeracija>> {
@@ -160,7 +176,6 @@ public class DetailActivity extends BarcodeScannerBaseActivity {
         }
 
         protected void onPostExecute(List<ZinfoNeispravnaNumeracija> result) {
-//            showProgress(false);
             populateList(result);
         }
     }
@@ -229,7 +244,7 @@ public class DetailActivity extends BarcodeScannerBaseActivity {
         }
 
         protected void onPostExecute(Long result) {
-//            showProgress(false);
+            showProgress(false);
             if (result < 1L) {
                 Crouton.showText(DetailActivity.this, "Neuspelo brisanje", Style.ALERT);
             }
@@ -270,19 +285,140 @@ public class DetailActivity extends BarcodeScannerBaseActivity {
 
         } catch (Exception e) {
             Log.e("ERROR", "Ne moze da parsira paket!");
+            return ret;
+        }
+    }
+
+    public void populateList(final List<ZinfoNeispravnaNumeracija> result){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ((ZinfoNumeracijeRecyclerAdapter)numeracijeList.getAdapter()).setData(result);
+                numeracijeList.getAdapter().notifyDataSetChanged();
+            }
+        });
+    }
+
+    public void deleteNumeracija(final ZinfoNeispravnaNumeracija num) {
+        showProgress(true);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                WebserviceDeleteNumCall call = new WebserviceDeleteNumCall(DetailActivity.this);
+                call.execute(num);
+            }
+        });
+    }
+
+    private class WebserviceInsertNumCall extends AsyncTask<ZinfoNeispravnaNumeracija, Void, Long> {
+
+        Context context;
+        Long succes = 0L;
+
+        public WebserviceInsertNumCall(Context ctx) {
+            this.context = ctx;
+        }
+
+        protected Long doInBackground(ZinfoNeispravnaNumeracija... num) {
+            succes = insertZinfoNeispravnaNumeracija(num[0]);
+            try{
+                List<ZinfoNeispravnaNumeracija> res = getNeispravneNumeracije(paket);
+
+                if(res!=null){
+                    populateList(res);
+                }
+            }
+            finally{
+                return succes != null ? succes : 0L;
+            }
+        }
+
+        protected void onPostExecute(Long result) {
+            showProgress(false);
+            if (result < 1L) {
+                Crouton.showText(DetailActivity.this, "Neuspelo cuvanje", Style.ALERT);
+            }
+            numeracijeList.getAdapter().notifyDataSetChanged();
+        }
+    }
+
+    private Long insertZinfoNeispravnaNumeracija(ZinfoNeispravnaNumeracija num) {
+        Long ret = 0L;
+
+        SoapObject request = new SoapObject(NAMESPACE, METHOD_SAVE);
+
+        Log.e("INFO", "Usao u cuvanje");
+
+        PropertyInfo pi = new PropertyInfo();
+        pi.setName("idPaket");
+        pi.setValue(num.getIdPaket());
+        pi.setType(Long.class);
+        request.addProperty(pi);
+
+        PropertyInfo pi2 = new PropertyInfo();
+        pi2.setName("numeracija");
+        pi2.setValue(num.getNumeracija());
+        pi2.setType(String.class);
+        request.addProperty(pi2);
+
+        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
+
+        envelope.setOutputSoapObject(request);
+
+        HttpTransportSE ht = new HttpTransportSE(URL);
+        SoapObject response = null;
+        try {
+            ht.call(SOAP_ACTION_DELETE, envelope);
+
+            try {
+                response = (SoapObject) envelope.getResponse();
+            } catch (ClassCastException e) {
+                response = (SoapObject) envelope.bodyIn;
+                Log.e("INFO", "Los odgovor!");
+            }
+
+            return Long.parseLong(((SoapPrimitive) response.getProperty(0)).toString());
+
+        } catch (Exception e) {
+            Log.e("ERROR", "Ne moze da parsira paket!");
             return null;
         }
     }
 
+    /**
+     * Shows the progress UI and hides the login form.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    public void showProgress(final boolean show) {
+        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+        // for very easy animations. If available, use these APIs to fade-in
+        // the progress spinner.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-    public void populateList(List<ZinfoNeispravnaNumeracija> result){
-        ((ZinfoNumeracijeRecyclerAdapter)numeracijeList.getAdapter()).setData(result);
-        numeracijeList.getAdapter().notifyDataSetChanged();
-    }
+            numeracijeList.setVisibility(show ? View.GONE : View.VISIBLE);
+            numeracijeList.animate().setDuration(shortAnimTime).alpha(
+                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    numeracijeList.setVisibility(show ? View.GONE : View.VISIBLE);
+                }
+            });
 
-    public void deleteNumeracija(ZinfoNeispravnaNumeracija num) {
-        WebserviceDeleteNumCall call = new WebserviceDeleteNumCall(this);
-        call.execute(num);
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            mProgressView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            });
+        } else {
+            // The ViewPropertyAnimator APIs are not available, so simply show
+            // and hide the relevant UI components.
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            numeracijeList.setVisibility(show ? View.GONE : View.VISIBLE);
+        }
     }
 
     @Override

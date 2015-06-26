@@ -2,10 +2,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin">
+    android:paddingLeft="@dimen/small_padding"
+    android:paddingRight="@dimen/small_padding"
+    android:paddingTop="@dimen/small_padding"
+    android:paddingBottom="@dimen/small_padding">
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -13,11 +13,11 @@
         <TextView
             android:id="@+id/numeracije_num"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical|left"
+            android:layout_height="fill_parent"
+            android:gravity="center_vertical"
             android:layout_weight="1"
             android:textSize="16sp"
-            android:text="0123456789123" >
+            android:text="0123456789123">
         </TextView>
         <ImageButton
             android:id="@+id/numeracije_delete"

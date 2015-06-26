@@ -10,91 +10,109 @@
     tools:context="rcub.zinfo.barcodescanner.activity.DetailActivity">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/detail_header"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical" >
+        android:layout_height="fill_parent"
+        android:orientation="vertical"
+        android:layout_gravity="center_vertical|center_horizontal">
 
-        <LinearLayout
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/detail_header"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-            <TextView
-                android:id="@+id/detail_paket_proizvod_naziv"
-                android:layout_width="0dp"
-                android:layout_weight="0.25"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:text="@string/Name">
-            </TextView>
-            <TextView
-                android:id="@+id/detail_paket_proizvod"
-                android:layout_width="0dp"
-                android:layout_weight="0.7"
+                android:orientation="horizontal" >
+                <TextView
+                    android:id="@+id/detail_paket_proizvod_naziv"
+                    android:layout_width="0dp"
+                    android:layout_weight="0.25"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:text="@string/Name">
+                </TextView>
+                <TextView
+                    android:id="@+id/detail_paket_proizvod"
+                    android:layout_width="0dp"
+                    android:layout_weight="0.7"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:text="">
+                </TextView>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:text="">
-            </TextView>
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-            <TextView
-                android:id="@+id/detail_paket_proizvod_broj"
-                android:layout_width="0dp"
-                android:layout_weight="0.25"
+                android:orientation="horizontal" >
+                <TextView
+                    android:id="@+id/detail_paket_proizvod_broj"
+                    android:layout_width="0dp"
+                    android:layout_weight="0.25"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:text="@string/PkgNo">
+                </TextView>
+                <TextView
+                    android:id="@+id/detail_paket_broj"
+                    android:layout_width="0dp"
+                    android:layout_weight="0.7"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:text="asdasdfsdf" >
+                </TextView>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:text="@string/PkgNo">
-            </TextView>
-            <TextView
-                android:id="@+id/detail_paket_broj"
-                android:layout_width="0dp"
-                android:layout_weight="0.7"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:text="asdasdfsdf" >
-            </TextView>
+                android:orientation="horizontal" >
+                <TextView
+                    android:id="@+id/detail_paket_proizvod_numeracija"
+                    android:layout_width="0dp"
+                    android:layout_weight="0.25"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:text="@string/Numeration">
+                </TextView>
+                <TextView
+                    android:id="@+id/detail_paket_num_od"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:layout_weight="0.34"
+                    android:text="0123456789123"  >
+                </TextView>
+                <TextView
+                    android:id="@+id/detail_paket_separator"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:layout_weight="0.02"
+                    android:text="-" >
+                </TextView>
+                <TextView
+                    android:id="@+id/detail_paket_num_do"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:layout_weight="0.34"
+                    android:text="0123456789123" >
+                </TextView>
+            </LinearLayout>
+
+            <!-- Search progress -->
+
         </LinearLayout>
 
-        <LinearLayout
+        <ProgressBar
+            android:id="@+id/list_progress"
+            style="?android:attr/progressBarStyleLarge"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-            <TextView
-                android:id="@+id/detail_paket_proizvod_numeracija"
-                android:layout_width="0dp"
-                android:layout_weight="0.25"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:text="@string/Numeration">
-            </TextView>
-            <TextView
-                android:id="@+id/detail_paket_num_od"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:layout_weight="0.34"
-                android:text="0123456789123"  >
-            </TextView>
-            <TextView
-                android:id="@+id/detail_paket_separator"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:layout_weight="0.02"
-                android:text="-" >
-            </TextView>
-            <TextView
-                android:id="@+id/detail_paket_num_do"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:layout_weight="0.34"
-                android:text="0123456789123" >
-            </TextView>
-        </LinearLayout>
+            android:layout_marginBottom="8dp"
+            android:visibility="gone" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/numeracijeListView"
@@ -102,8 +120,10 @@
             android:layout_height="fill_parent"
             android:layout_gravity="center"
             android:layout_marginTop="10dp"
-            android:gravity="center_horizontal">
+            android:gravity="center_horizontal"
+            android:divider="@drawable/list_divider">
         </android.support.v7.widget.RecyclerView>
+
     </LinearLayout>
 
     <!-- FAB -->
